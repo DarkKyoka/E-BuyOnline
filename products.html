@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse products at E-Buy Online." />
+  <title>Products | E-Buy Online!</title>
+  <!-- Compatibility redirect: preserve the selected category in the shared app. -->
+  <script>
+    const selectedCategory = new URLSearchParams(window.location.search).get('category');
+    const productRoute = selectedCategory
+      ? `index.html#products?category=${encodeURIComponent(selectedCategory)}`
+      : 'index.html#categories';
+
+    window.location.replace(productRoute);
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script type="module" src="scripts/dark and light mode/darkAndLight.js"></script>
+  <script type="module" src="scripts/navigation/pageTransitions.js"></script>
+  <script type="module" src="scripts/catalog.js"></script>
+</head>
+<body>
+<main class="site products-page" id="site">
+  <header class="navbar">
+    <div class="brand-logo" aria-hidden="true"></div>
+    <div class="brand-group">
+      <a class="brand page-transition-link" href="index.html">E-Buy Online!</a>
+      <nav aria-label="Main navigation">
+        <a class="page-transition-link" href="index.html">Home</a>
+        <a class="page-transition-link" href="categories.html" aria-current="page">Products</a>
+        <a class="page-transition-link" href="index.html#about">About</a>
+      </nav>
+    </div>
+
+    <div class="nav-actions">
+      <div class="favorites-wrap">
+        <button class="icon-button favorites-button" id="favorites-button" aria-expanded="false" aria-controls="favorites-popover">
+          <!-- FAVORITES SVG: Replace the SVG below with your own heart SVG. -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+          </svg>
+          <span id="favorites-count">0</span>
+          <span class="sr-only">Open favorites</span>
+        </button>
+        <aside class="favorites-popover" id="favorites-popover" aria-label="Favorite products" hidden>
+          <h2>Your favorites</h2>
+          <div id="favorites-list"></div>
+        </aside>
+      </div>
+
+      <div class="cart-wrap">
+        <button class="icon-button cart-button" id="cart-button" aria-expanded="false" aria-controls="cart-popover">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/>
+          </svg>
+          <span id="cart-count">0</span>
+          <span class="sr-only">Open cart</span>
+        </button>
+        <aside class="cart-popover" id="cart-popover" aria-label="Cart preview" hidden>
+          <div class="mini-cart-list" id="mini-cart-list"></div>
+          <p class="mini-total">Total: $<span id="mini-total">0</span></p>
+          <button class="checkout-button" id="open-cart-details">Proceed to checkout</button>
+        </aside>
+      </div>
+
+      <button class="icon-button" id="theme-button" aria-label="Use dark mode">
+        <i data-lucide="moon" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <section class="products-section" id="products">
+    <div class="section-heading-row">
+      <a class="back-button page-transition-link" href="categories.html" aria-label="Back to categories">
+        <i data-lucide="arrow-left" aria-hidden="true"></i>
+      </a>
+      <h1>Products — <span id="selected-category">All products</span></h1>
+    </div>
+    <div class="product-grid" id="product-grid"></div>
+  </section>
+</main>
+
+<dialog class="cart-dialog" id="cart-dialog" aria-labelledby="cart-dialog-title">
+  <div class="cart-dialog-heading">
+    <button id="close-cart-details" aria-label="Close cart details">
+      <i data-lucide="arrow-left" aria-hidden="true"></i>
+    </button>
+    <h2 id="cart-dialog-title">Cart Details</h2>
+  </div>
+  <div class="cart-detail-layout">
+    <div class="cart-detail-items" id="cart-detail-items"></div>
+    <aside class="order-summary">
+      <dl>
+        <div><dt>Subtotal:</dt><dd>$<span id="summary-subtotal">0</span></dd></div>
+        <div><dt>Tax:</dt><dd>$4</dd></div>
+        <div><dt>Delivery:</dt><dd>$4</dd></div>
+      </dl>
+      <p>Total: $<span id="summary-total">8</span></p>
+      <button class="checkout-button">Proceed to checkout</button>
+    </aside>
+  </div>
+</dialog>
+</body>
+</html>

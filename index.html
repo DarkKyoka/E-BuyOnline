@@ -6,29 +6,42 @@
   <meta name="description" content="Shop products by category at E-Buy Online." />
   <title>E-Buy Online!</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
-  <script src="script.js" defer></script>
+  <!-- Icons, appearance controls, and page transitions -->
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script type="module" src="scripts/dark and light mode/darkAndLight.js"></script>
+  <script type="module" src="scripts/catalog.js"></script>
 </head>
 <body>
-<main class="site" id="site">
-  <section class="hero" id="home">
-    <header class="navbar">
+<main class="site app-shell" id="site">
+    <!-- Shared top bar: edit this once for the whole app. -->
+    <header class="navbar shared-navbar">
       <div class="brand-logo" aria-hidden="true"></div>
       <div class="brand-group">
         <a class="brand" href="#home">E-Buy Online!</a>
         <nav aria-label="Main navigation">
           <a href="#home">Home</a>
-          <div class="menu-wrap">
-            <button class="nav-link" id="products-menu-button" aria-expanded="false" aria-controls="category-menu">
-              Products <i data-lucide="chevron-down" aria-hidden="true"></i>
-            </button>
-            <div class="category-menu" id="category-menu" hidden></div>
-          </div>
+          <a class="nav-link" href="#categories">
+            Products <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+          </a>
           <a href="#about">About</a>
         </nav>
       </div>
 
       <div class="nav-actions">
+        <div class="favorites-wrap">
+          <button class="icon-button favorites-button" id="favorites-button" aria-expanded="false" aria-controls="favorites-popover">
+            <!-- FAVORITES SVG: Replace the SVG below with your own heart SVG. -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+            </svg>
+            <span id="favorites-count">0</span>
+            <span class="sr-only">Open favorites</span>
+          </button>
+          <aside class="favorites-popover" id="favorites-popover" aria-label="Favorite products" hidden>
+            <h2>Your favorites</h2>
+            <div id="favorites-list"></div>
+          </aside>
+        </div>
         <div class="cart-wrap">
           <button class="icon-button cart-button" id="cart-button" aria-expanded="false" aria-controls="cart-popover">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg>
@@ -46,36 +59,9 @@
       </div>
     </header>
 
-    <div class="hero-copy">
-      <h1>Everything you’ll ever<br />need is here!</h1>
-      <button class="hero-cta" data-scroll="categories">
-        <span>Take a look!</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-basket-icon lucide-shopping-basket"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></svg>
-      </button>
-    </div>
-  </section>
-
-  <section class="categories-section" id="categories">
-    <button class="back-button" data-scroll="home" aria-label="Back to home">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
-    </button>
-    <h2>Choose your category</h2>
-    <div class="category-grid" id="category-grid"></div>
-  </section>
-
-  <section class="products-section" id="products">
-    <div class="section-heading-row">
-      <button class="back-button" data-scroll="categories" aria-label="Back to categories">
-        <i data-lucide="arrow-left" aria-hidden="true"></i>
-      </button>
-      <h2>Product session - <span id="selected-category">Product type</span></h2>
-      <button class="list-button" aria-label="Product menu">
-        <i data-lucide="menu" aria-hidden="true"></i>
-      </button>
-    </div>
-    <div class="product-grid" id="product-grid"></div>
-  </section>
-
+    <!-- Only this middle area changes between Home, Categories, and Products. -->
+    <div id="page-content"></div>
+  <!-- Shared contact bar: edit this once for the whole app. -->
   <footer class="contact-section" id="about">
     <div class="contact-brand">
       <div class="footer-logo" aria-hidden="true"></div>
