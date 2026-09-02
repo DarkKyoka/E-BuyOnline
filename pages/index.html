@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Shop products by category at E-Buy Online."
+    />
+    <title>E-Buy Online!</title>
+    <link rel="stylesheet" href="../styles.css" />
+
+    <!-- Keyframe animations are kept in their own file -->
+    <link rel="stylesheet" href="/Css/Animations.css" />
+
+    <!-- Lucide turns short <i> elements into SVG icons -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"
+    ></script>
+    <script
+      type="module"
+      src="../scripts/dark and light mode/darkAndLight.js"
+    ></script>
+    <script type="module" src="../scripts/catalog.js"></script>
+  </head>
+  <body>
+    <main class="site app-shell" id="site">
+      <!-- Shared top bar: works like sigleton it has a static instance across pages -->
+      <header class="navbar shared-navbar">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-group">
+          <a class="brand" href="#home">E-Buy Online!</a>
+          <nav aria-label="Main navigation">
+            <a href="#home">Home</a>
+            <a class="nav-link" href="#categories">
+              Products <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+            </a>
+            <a href="#about">About</a>
+          </nav>
+        </div>
+
+        <!-- Header action buttons -->
+        <div class="nav-actions">
+          <!-- Favorites button and dropdown -->
+          <div class="favorites-wrap">
+            <button
+              class="icon-button favorites-button"
+              id="favorites-button"
+              aria-expanded="false"
+              aria-controls="favorites-popover"
+            >
+              <i data-lucide="heart" aria-hidden="true"></i>
+              <span id="favorites-count">0</span>
+              <span class="sr-only">Open favorites</span>
+            </button>
+            <aside
+              class="favorites-popover"
+              id="favorites-popover"
+              aria-label="Favorite products"
+              hidden
+            >
+              <h2>Your favorites</h2>
+              <div id="favorites-list"></div>
+            </aside>
+          </div>
+          <!-- Cart button and dropdown -->
+          <div class="cart-wrap">
+            <button
+              class="icon-button cart-button"
+              id="cart-button"
+              aria-expanded="false"
+              aria-controls="cart-popover"
+            >
+              <i data-lucide="shopping-basket" aria-hidden="true"></i>
+              <span id="cart-count">0</span>
+              <span class="sr-only">Open cart</span>
+            </button>
+            <aside
+              class="cart-popover"
+              id="cart-popover"
+              aria-label="Cart preview"
+              hidden
+            >
+              <div class="mini-cart-list" id="mini-cart-list"></div>
+              <p class="mini-total">Total: <span id="mini-total">0</span>$</p>
+              <button class="checkout-button" id="open-cart-details">
+                Proceed to checkout
+              </button>
+            </aside>
+          </div>
+          <!-- Light and dark mode button -->
+          <button
+            class="icon-button"
+            id="theme-button"
+            aria-label="Use dark mode"
+          >
+            <i data-lucide="moon" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Only this middle area changes between Home, Categories, and Products. -->
+      <div id="page-content"></div>
+      <!-- Shared contact bar: edit this once for the whole app. -->
+      <footer class="contact-section" id="about">
+        <!-- Business contact details -->
+        <div class="contact-brand">
+          <div class="footer-logo" aria-hidden="true"></div>
+          <div>
+            <h2>E-Buy Online!</h2>
+            <address>
+              123 Example Street, Athens, Greece<br />
+              +30 210 000 0000<br />
+              <a href="mailto:eBuyOnline.Support@EBuyOnline.com"
+                >eBuyOnline.Support@EBuyOnline.com</a
+              >
+            </address>
+          </div>
+        </div>
+
+        <!-- Opening hours -->
+        <div class="working-hours">
+          <i data-lucide="calendar-clock" aria-hidden="true"></i>
+          <div>
+            <h2>Working Hours</h2>
+            <p>Monday – Friday<br />09:00 – 17:00</p>
+          </div>
+        </div>
+        <!-- Social media links -->
+        <p class="socials">
+          Follow us on: <a href="#about">Instagram</a> ·
+          <a href="#about">LinkedIn</a> · <a href="#about">Facebook</a>
+        </p>
+      </footer>
+    </main>
+
+    <!-- Full cart details modal -->
+    <dialog
+      class="cart-dialog"
+      id="cart-dialog"
+      aria-labelledby="cart-dialog-title"
+    >
+      <div class="cart-dialog-heading">
+        <button id="close-cart-details" aria-label="Close cart details">
+          <i data-lucide="arrow-left" aria-hidden="true"></i>
+        </button>
+        <h2 id="cart-dialog-title">Cart Details</h2>
+      </div>
+      <div class="cart-detail-layout">
+        <!-- JavaScript inserts cart products here -->
+        <div class="cart-detail-items" id="cart-detail-items"></div>
+
+        <!-- Price summary -->
+        <aside class="order-summary">
+          <dl>
+            <div>
+              <dt>Clean total:</dt>
+              <dd><span id="summary-subtotal">0</span>$</dd>
+            </div>
+            <div>
+              <dt>Tax:</dt>
+              <dd>4$</dd>
+            </div>
+            <div>
+              <dt>Delivery tax:</dt>
+              <dd>4$</dd>
+            </div>
+          </dl>
+          <p>Total: <span id="summary-total">8</span>$</p>
+          <button class="checkout-button">proceed to checkout</button>
+        </aside>
+      </div>
+    </dialog>
+  </body>
+</html>

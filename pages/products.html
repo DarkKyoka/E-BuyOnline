@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Browse products at E-Buy Online." />
+    <title>Products | E-Buy Online!</title>
+    <!-- save selected category via localStorage  -->
+    <script>
+      const selectedCategory = new URLSearchParams(window.location.search).get(
+        'category',
+      );
+      const productRoute = selectedCategory
+        ? `index.html#products?category=${encodeURIComponent(selectedCategory)}`
+        : 'index.html#categories';
+
+      window.location.replace(productRoute);
+    </script>
+  </head>
+  <body>
+    <!-- This fallback link is shown only when JavaScript is disabled. -->
+    <p><a href="index.html#categories">Open the products view</a></p>
+  </body>
+</html>

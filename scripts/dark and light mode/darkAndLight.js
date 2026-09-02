@@ -7,6 +7,7 @@ function setTheme(theme) {
   const isDark = theme === 'dark';
 
   site.classList.toggle('dark-mode', isDark);
+  document.body.classList.toggle('dark-mode', isDark);
   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
   themeButton.setAttribute('aria-pressed', String(isDark));
   themeButton.setAttribute('aria-label', `Use ${isDark ? 'light' : 'dark'} mode`);
