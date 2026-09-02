@@ -1,0 +1,75 @@
+/* ---------- Initial page animation ---------- */
+body {
+  animation: page-enter 420ms ease-out both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Middle view animations ---------- */
+#page-content.view-is-leaving {
+  animation: view-leave 180ms ease-in both;
+}
+
+#page-content.view-is-entering {
+  animation: view-enter 320ms ease-out both;
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes view-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.75rem);
+  }
+}
+
+/* ---------- Hero button icon ---------- */
+.hero-cta svg {
+  animation: hero-icon-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes hero-icon-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.45rem);
+  }
+}
+
+/* Turn animations off when the user prefers less motion. */
+@media (prefers-reduced-motion: reduce) {
+  body,
+  #page-content.view-is-leaving,
+  #page-content.view-is-entering,
+  .hero-cta svg {
+    animation: none;
+  }
+}
