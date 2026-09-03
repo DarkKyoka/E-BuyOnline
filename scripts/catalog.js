@@ -468,11 +468,20 @@ function renderFavorites() {
         <strong>${product.name}</strong>
         <small>${money(product.price)}</small>
       </div>
-      <button type="button" data-remove-favorite-id="${product.id}" aria-label="Remove ${product.name} from favorites">Remove</button>
+      <button
+        class="remove-item-button"
+        type="button"
+        data-remove-favorite-id="${product.id}"
+        aria-label="Remove ${product.name} from favorites"
+      >
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
     </div>
   `,
     )
     .join('');
+
+  window.lucide?.createIcons();
 }
 
 function setupFavorites() {
@@ -524,6 +533,12 @@ function addToCart(productId) {
   renderCart();
 }
 
+function removeFromCart(productId) {
+  delete cart[productId];
+  writeJsonToStorage('ebuy-cart', cart);
+  renderCart();
+}
+
 function getCartEntries() {
   return Object.entries(cart)
     .map(([id, quantity]) => ({
@@ -540,6 +555,8 @@ function renderCart() {
     (sum, entry) => sum + entry.product.price * entry.quantity,
     0,
   );
+  const tax = entries.length > 0 ? 4 : 0;
+  const delivery = entries.length > 0 ? 4 : 0;
   const countElement = document.querySelector('#cart-count');
   if (countElement) countElement.textContent = count;
 
@@ -552,6 +569,14 @@ function renderCart() {
       <div class="mini-cart-item">
         <div class="item-image" aria-hidden="true">${product.icon}</div>
         <div><strong>${product.name}<span>${money(product.price * quantity)}</span></strong><small>Quantity: ${quantity}</small></div>
+        <button
+          class="remove-item-button"
+          type="button"
+          data-remove-cart-id="${product.id}"
+          aria-label="Remove ${product.name} from cart"
+        >
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
       </div>`,
           )
           .join('')
@@ -562,8 +587,14 @@ function renderCart() {
   if (miniTotal) miniTotal.textContent = subtotal.toFixed(2);
   const summarySubtotal = document.querySelector('#summary-subtotal');
   if (summarySubtotal) summarySubtotal.textContent = subtotal.toFixed(2);
+  const summaryTax = document.querySelector('#summary-tax');
+  if (summaryTax) summaryTax.textContent = tax.toFixed(2);
+  const summaryDelivery = document.querySelector('#summary-delivery');
+  if (summaryDelivery) summaryDelivery.textContent = delivery.toFixed(2);
   const summaryTotal = document.querySelector('#summary-total');
-  if (summaryTotal) summaryTotal.textContent = (subtotal + 8).toFixed(2);
+  if (summaryTotal) {
+    summaryTotal.textContent = (subtotal + tax + delivery).toFixed(2);
+  }
 
   const detailList = document.querySelector('#cart-detail-items');
   if (detailList) {
@@ -575,18 +606,40 @@ function renderCart() {
         <div class="item-image" aria-hidden="true">${product.icon}</div>
         <div><strong>${product.name}</strong><span>${money(product.price)} × ${quantity}</span></div>
         <b>${money(product.price * quantity)}</b>
+        <button
+          class="remove-item-button"
+          type="button"
+          data-remove-cart-id="${product.id}"
+          aria-label="Remove ${product.name} from cart"
+        >
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
       </div>`,
           )
           .join('')
       : '<p>Your cart is empty.</p>';
   }
+
+  window.lucide?.createIcons();
 }
 
 function setupCart() {
   const button = document.querySelector('#cart-button');
   const popover = document.querySelector('#cart-popover');
   const dialog = document.querySelector('#cart-dialog');
+  const miniList = document.querySelector('#mini-cart-list');
+  const detailList = document.querySelector('#cart-detail-items');
   if (!button || !popover || !dialog) return;
+
+  const handleRemoveButton = (event) => {
+    const removeButton = event.target.closest('[data-remove-cart-id]');
+    if (!removeButton) return;
+
+    removeFromCart(Number(removeButton.dataset.removeCartId));
+  };
+
+  miniList?.addEventListener('click', handleRemoveButton);
+  detailList?.addEventListener('click', handleRemoveButton);
 
   button.addEventListener('click', () => {
     const favoritesPopover = document.querySelector('#favorites-popover');

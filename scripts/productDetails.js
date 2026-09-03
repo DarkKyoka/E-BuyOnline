@@ -69,23 +69,26 @@ function renderFavoritesMenu() {
     ? favoriteProducts
         .map(
           (product) => `
-            <div class="favorite-item">
-              <div class="item-image" aria-hidden="true">${product.icon}</div>
+            <div class="favorite-list-item">
+              <span class="favorite-list-icon" aria-hidden="true">${product.icon}</span>
               <div>
                 <strong>${product.name}</strong>
                 <small>$${product.price.toFixed(2)}</small>
               </div>
               <button
+                class="remove-item-button"
                 type="button"
                 data-remove-favorite-id="${product.id}"
                 aria-label="Remove ${product.name} from favorites"
               >
-                Remove
+                <i data-lucide="x" aria-hidden="true"></i>
               </button>
             </div>`,
         )
         .join('')
     : '<p>Your favorites list is empty.</p>';
+
+  window.lucide?.createIcons();
 }
 
 function renderCartMenu() {
@@ -114,10 +117,20 @@ function renderCartMenu() {
                 </strong>
                 <small>Quantity: ${quantity}</small>
               </div>
+              <button
+                class="remove-item-button"
+                type="button"
+                data-remove-cart-id="${product.id}"
+                aria-label="Remove ${product.name} from cart"
+              >
+                <i data-lucide="x" aria-hidden="true"></i>
+              </button>
             </div>`,
         )
         .join('')
     : '<p>Your cart is empty.</p>';
+
+  window.lucide?.createIcons();
 }
 
 function renderHeaderMenus() {
@@ -143,6 +156,15 @@ function setupHeaderMenus() {
   cartMenuButton.addEventListener('click', () => {
     setPopoverOpen(favoritesMenuButton, favoritesPopover, false);
     setPopoverOpen(cartMenuButton, cartPopover, cartPopover.hidden);
+  });
+
+  cartList.addEventListener('click', (event) => {
+    const removeButton = event.target.closest('[data-remove-cart-id]');
+    if (!removeButton) return;
+
+    delete cartQuantities[removeButton.dataset.removeCartId];
+    writeJsonToStorage(STORAGE_KEYS.cart, cartQuantities);
+    renderCartMenu();
   });
 
   favoritesList.addEventListener('click', (event) => {
