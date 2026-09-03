@@ -25,34 +25,39 @@ There is no server or database yet. All product data lives in JavaScript, and us
 
 ```text
 eBuyOnline/
-├── pages/
-│   ├── index.html              Main HTML shell
-│   ├── categories.html         Legacy redirect
-│   └── products.html           Legacy redirect
-├── scripts/
-│   ├── catalog.js              Products, sorting, cart, favorites, routing
-│   └── dark and light mode/
-│       └── darkAndLight.js     Theme switching
-├── public/
-│   └── Css/
-│       └── Animations.css      Keyframe animations
-├── styles.css                  Main appearance and responsive layout
-├── vite.config.js              Vite project configuration
-├── package.json                Commands and development dependencies
-└── PROJECT_GUIDE.md            This guide
+|-- pages/
+|   |-- index.html              Main HTML shell
+|   |-- product.html            Individual product view
+|   |-- categories.html         Legacy redirect
+|   |-- products.html           Legacy redirect
+|   `-- css/
+|       |-- styles.css          Main application styles
+|       |-- product.css         Individual product-page styles
+|       |-- animations.css      Keyframe animations
+|       `-- webstorm-starter.css
+|-- scripts/
+|   |-- catalog.js              Sorting, cart, favorites, and routing
+|   |-- productDetails.js       Individual product-page behavior
+|   |-- data/catalogData.js     Shared categories and products
+|   `-- dark and light mode/
+|       `-- darkAndLight.js     Theme switching
+|-- public/                     Static images and fonts
+|-- vite.config.js              Vite project configuration
+|-- package.json                Commands and development dependencies
+`-- PROJECT_GUIDE.md            This guide
 ```
 
 These old WebStorm starter files are not used by the shop:
 
 ```text
 src/main.js
-public/style.css
+pages/css/webstorm-starter.css
 public/background.svg
 public/javascript.svg
 public/technologies.svg
 ```
 
-You do not need to study `public/style.css` to understand the current shop design. The active stylesheet is the root-level `styles.css`.
+You do not need to study `pages/css/webstorm-starter.css` to understand the current shop design. The active shop stylesheets are grouped under `pages/css/`.
 
 ## 3. Running the project
 
@@ -391,7 +396,7 @@ The theme is saved under the `theme` local-storage key. When there is no saved t
 
 ## 14. CSS organization
 
-The active `styles.css` file is divided into labeled sections:
+The active `pages/css/styles.css` file is divided into labeled sections:
 
 ```text
 Colors
@@ -445,7 +450,7 @@ The cards use a vertical flex layout. `margin-top: auto` keeps action buttons al
 
 ## 16. Animations
 
-Keyframe animations are kept in `public/Css/Animations.css` so the main stylesheet stays focused on appearance and layout.
+Keyframe animations are kept in `pages/css/animations.css` so the main stylesheet stays focused on appearance and layout.
 
 It contains:
 
@@ -563,7 +568,7 @@ Keep `YYYY-MM-DD`. Mixing `02/09/2026` and `2026-09-02` breaks reliable sorting.
 
 ### Editing the unused stylesheet
 
-Use root `styles.css`. The old `public/style.css` belongs to the original starter project.
+Use `pages/css/styles.css` for the shop and `pages/css/product.css` for the individual product page. `pages/css/webstorm-starter.css` belongs to the original starter project.
 
 ### Opening HTML directly
 

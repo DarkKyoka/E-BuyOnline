@@ -7,7 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '/scripts': resolve(import.meta.dirname, 'scripts'),
-      '/styles.css': resolve(import.meta.dirname, 'styles.css'),
     },
   },
   build: {
@@ -18,6 +17,7 @@ export default defineConfig({
         home: resolve(import.meta.dirname, 'pages/index.html'),
         categories: resolve(import.meta.dirname, 'pages/categories.html'),
         products: resolve(import.meta.dirname, 'pages/products.html'),
+        product: resolve(import.meta.dirname, 'pages/product.html'),
       },
     },
   },
