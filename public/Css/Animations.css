@@ -1,6 +1,6 @@
 /* ---------- Initial page animation ---------- */
 body {
-  animation: page-enter 420ms ease-out both;
+  animation: page-enter 2000ms ease-out both;
 }
 
 @keyframes page-enter {

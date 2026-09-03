@@ -389,12 +389,18 @@ nav a:hover,
   text-align: center;
   text-shadow: 0.25rem 0.55rem 0.7rem rgba(0, 0, 0, 0.25);
 }
-.sort-menu {
+.product-view-controls {
   position: absolute;
   z-index: 10;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.sort-menu {
+  position: relative;
   width: min(15rem, 40vw);
   color: #111;
 }
@@ -421,11 +427,20 @@ nav a:hover,
   height: 1.1rem;
   margin-left: auto;
 }
+#selected-sort-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .sort-menu[open] summary svg {
   transform: rotate(180deg);
 }
 .sort-options {
-  margin-top: 0.4rem;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  width: 100%;
   padding: 0.4rem;
   border: 1px solid rgba(0, 92, 38, 0.2);
   border-radius: 0.65rem;
@@ -493,6 +508,39 @@ nav a:hover,
 .site.dark-mode .sort-options button.is-selected {
   background: rgba(138, 255, 170, 0.12);
 }
+.grid-density-control {
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(0, 92, 38, 0.25);
+  border-radius: 0.65rem;
+  color: #111;
+  background: #fff;
+  box-shadow: 0 0.35rem 0.8rem rgba(0, 0, 0, 0.14);
+}
+.grid-density-control svg {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+}
+.grid-density-control input {
+  width: 3.4rem;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+.grid-density-control output {
+  min-width: 3.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.site.dark-mode .grid-density-control {
+  border-color: rgba(138, 255, 170, 0.35);
+  color: var(--text);
+  background: #263c38;
+}
 .back-button {
   position: absolute;
   left: clamp(1.4rem, 3vw, 3.2rem);
@@ -516,7 +564,7 @@ nav a:hover,
 .category-grid {
   margin-top: 2.2rem;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: 2.2rem 2.6rem;
 }
 .category-card {
@@ -599,7 +647,7 @@ nav a:hover,
 .product-grid {
   margin-top: 1.8rem;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--product-columns, 4), minmax(0, 1fr));
   gap: 2.8rem 0.95rem;
 }
 .product-card {
@@ -643,14 +691,14 @@ nav a:hover,
 .product-info h3 {
   min-width: 0;
   margin: 0;
-  font-size: clamp(1.3rem, 2vw, 2.25rem);
+  font-size: clamp(1.25rem, 1.6vw, 1.75rem);
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 .product-info p {
   margin: 0.35rem 0 0.65rem;
   overflow: hidden;
-  font-size: clamp(0.9rem, 1.4vw, 1.5rem);
+  font-size: clamp(0.9rem, 1.1vw, 1.1rem);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -719,6 +767,8 @@ nav a:hover,
   padding: 4rem clamp(2.3rem, 6vw, 7.5rem) 4.5rem;
   color: #fff;
   background: var(--footer);
+  content-visibility: auto;
+  contain-intrinsic-size: 25rem;
 }
 .contact-brand,
 .working-hours {
@@ -904,12 +954,28 @@ nav a:hover,
 
 /* ---------- Tablet layout ---------- */
 @media (max-width: 1100px) {
-  .category-grid,
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .category-card {
     min-height: 18rem;
+  }
+  .section-heading-row {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .product-view-controls {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: none;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .sort-menu {
+    width: min(100%, 18rem);
+    min-width: 0;
+    flex: 0 1 18rem;
+  }
+  .grid-density-control {
+    flex: 0 0 auto;
   }
   .contact-section {
     grid-template-columns: 1fr;
@@ -923,6 +989,7 @@ nav a:hover,
   }
   .navbar {
     min-height: 5.5rem;
+    flex-wrap: wrap;
     gap: 0.6rem;
     padding: 0.7rem 0.8rem;
   }
@@ -932,6 +999,9 @@ nav a:hover,
   }
   .brand {
     font-size: 1.1rem;
+  }
+  .brand-group {
+    flex: 1 1 auto;
   }
   nav {
     gap: 0.75rem;
@@ -945,8 +1015,8 @@ nav a:hover,
     gap: 0.45rem;
   }
   .icon-button {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.6rem;
+    height: 2.6rem;
   }
   .cart-popover {
     position: fixed;
@@ -975,43 +1045,21 @@ nav a:hover,
     padding: 0 3.8rem;
     font-size: 2rem;
   }
-  .section-heading-row {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  .sort-menu {
-    position: relative;
-    top: auto;
-    right: auto;
-    transform: none;
-    width: min(100%, 18rem);
-    margin-left: 3.4rem;
-  }
   .back-button {
     left: 0.8rem;
     top: 1.5rem;
     width: 2.8rem;
     height: 2.8rem;
   }
-  .category-grid,
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
   .category-card {
     min-height: 14rem;
   }
   .products-section h1 {
-    padding-right: 4.5rem;
+    padding-right: 0;
     font-size: 1.5rem;
   }
-  .product-info h3 {
-    font-size: 1.8rem;
-  }
-  .product-info p {
-    font-size: 1rem;
-  }
   .contact-section {
-    min-height: 42rem;
+    min-height: 34rem;
     padding: 3.5rem 1.5rem 6rem;
   }
   .contact-brand,
@@ -1064,6 +1112,33 @@ nav a:hover,
   .cart-detail-item .item-image {
     width: 3.4rem;
     height: 3.4rem;
+  }
+}
+
+/* ---------- Small phone layout ---------- */
+@media (max-width: 560px) {
+  .shared-navbar {
+    margin: 0.5rem;
+  }
+  .brand-logo {
+    display: none;
+  }
+  .brand-group {
+    min-width: 12rem;
+  }
+  nav {
+    gap: 0.65rem;
+    font-size: 0.82rem;
+  }
+  .nav-actions {
+    margin-left: 0;
+  }
+  .categories-section,
+  .products-section {
+    padding-inline: 0.75rem;
+  }
+  .product-actions button {
+    min-height: 2.75rem;
   }
 }
 

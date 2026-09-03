@@ -1,24 +1,79 @@
-const transitionLinks = document.querySelectorAll('.page-transition-link');
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const transitionDuration = prefersReducedMotion ? 0 : 320;
+const LEAVE_DURATION = 260;
+const ENTER_DURATION = 420;
 
-transitionLinks.forEach(link => {
-  link.addEventListener('click', event => {
-    const isModifiedClick = event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+/**
+ * Runs the shared view renderer between the leave and enter animations.
+ * The page shell stays mounted while only #page-content is replaced.
+ */
+export function setupPageTransitions(renderView) {
+  const pageContent = document.querySelector('#page-content');
+  const reducedMotionQuery = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  );
 
-    if (isModifiedClick || link.target === '_blank') {
+  if (!pageContent || typeof renderView !== 'function') return;
+
+  let activeAnimation;
+  let transitionId = 0;
+
+  const runAnimation = (keyframes, options) => {
+    activeAnimation?.cancel();
+    activeAnimation = pageContent.animate(keyframes, options);
+    return activeAnimation.finished.catch(() => undefined);
+  };
+
+  const playEnterAnimation = () =>
+    runAnimation(
+      [
+        { opacity: 0, transform: 'translateX(2.5rem) scale(0.985)' },
+        { opacity: 1, transform: 'translateX(0) scale(1)' },
+      ],
+      {
+        duration: ENTER_DURATION,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      },
+    );
+
+  const renderWithTransition = async () => {
+    const currentTransitionId = ++transitionId;
+
+    if (reducedMotionQuery.matches || !pageContent.animate) {
+      activeAnimation?.cancel();
+      renderView();
       return;
     }
 
-    event.preventDefault();
-    document.body.classList.add('page-is-leaving');
+    await runAnimation(
+      [
+        { opacity: 1, transform: 'translateX(0) scale(1)' },
+        { opacity: 0, transform: 'translateX(-2rem) scale(0.985)' },
+      ],
+      {
+        duration: LEAVE_DURATION,
+        easing: 'cubic-bezier(0.4, 0, 1, 1)',
+        fill: 'forwards',
+      },
+    );
 
-    window.setTimeout(() => {
-      window.location.href = link.href;
-    }, transitionDuration);
-  });
-});
+    // A newer hash change owns the renderer if users navigate very quickly.
+    if (currentTransitionId !== transitionId) return;
 
-window.addEventListener('pageshow', () => {
-  document.body.classList.remove('page-is-leaving');
-});
+    activeAnimation?.cancel();
+    renderView();
+    await playEnterAnimation();
+
+    if (currentTransitionId === transitionId) activeAnimation = undefined;
+  };
+
+  const resetAfterHistoryRestore = (event) => {
+    if (!event.persisted) return;
+    transitionId += 1;
+    activeAnimation?.cancel();
+    activeAnimation = undefined;
+  };
+
+  window.addEventListener('hashchange', renderWithTransition);
+  window.addEventListener('pageshow', resetAfterHistoryRestore);
+
+  if (!reducedMotionQuery.matches && pageContent.animate) playEnterAnimation();
+}

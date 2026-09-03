@@ -1,3 +1,5 @@
+import { setupPageTransitions } from './navigation/pageTransitions.js';
+
 const categories = [
   { id: 'electronics', name: 'Electronics', icon: '🎧', color: '#dbeafe' },
   { id: 'fashion', name: 'Fashion', icon: '👟', color: '#fce7f3' },
@@ -529,6 +531,22 @@ const products = [
 
 const money = (value) => `$${value.toFixed(2)}`;
 
+// Maps make repeated product and category lookups fast, even as the catalog grows.
+const productById = new Map(products.map((product) => [product.id, product]));
+const productCountByCategory = new Map();
+
+products.forEach((product) => {
+  const currentCount = productCountByCategory.get(product.category) ?? 0;
+  productCountByCategory.set(product.category, currentCount + 1);
+});
+
+// Reuse one formatter instead of creating a new one for every product card.
+const uploadDateFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+
 // These values are saved in localStorage and used to sort product cards.
 const sortOptions = [
   { value: 'name-asc', label: 'Name: A to Z' },
@@ -540,7 +558,13 @@ const sortOptions = [
 ];
 
 function getSelectedSorts() {
-  const savedValue = localStorage.getItem('ebuy-sort');
+  let savedValue;
+
+  try {
+    savedValue = localStorage.getItem('ebuy-sort');
+  } catch {
+    return ['name-asc'];
+  }
 
   // Support the old single string value already saved in some browsers.
   if (sortOptions.some((option) => option.value === savedValue)) {
@@ -563,7 +587,11 @@ function getSelectedSorts() {
 }
 
 function saveSelectedSorts(selectedSorts) {
-  localStorage.setItem('ebuy-sort', JSON.stringify(selectedSorts));
+  try {
+    localStorage.setItem('ebuy-sort', JSON.stringify(selectedSorts));
+  } catch {
+    // Ignore storage errors from restricted browser modes.
+  }
 }
 
 function getSelectedSortLabel() {
@@ -639,6 +667,47 @@ function createSortMenuHtml() {
     </details>`;
 }
 
+function getMaxProductGridColumns() {
+  if (window.innerWidth <= 760) return 2;
+  if (window.innerWidth <= 1100) return 3;
+  if (window.innerWidth <= 1500) return 4;
+  if (window.innerWidth <= 1800) return 5;
+  return 6;
+}
+
+function getPreferredProductGridColumns() {
+  try {
+    const savedColumns = Number(localStorage.getItem('ebuy-grid-columns'));
+    return Number.isInteger(savedColumns) && savedColumns >= 1
+      ? Math.min(savedColumns, 6)
+      : getMaxProductGridColumns();
+  } catch {
+    return getMaxProductGridColumns();
+  }
+}
+
+function createGridControlHtml() {
+  const maxColumns = getMaxProductGridColumns();
+  const columns = Math.min(getPreferredProductGridColumns(), maxColumns);
+  const columnLabel = `${columns} ${columns === 1 ? 'column' : 'columns'}`;
+
+  return `
+    <label class="grid-density-control" for="grid-column-slider" title="Products per row">
+      <i data-lucide="layout-grid" aria-hidden="true"></i>
+      <span class="sr-only">Products per row</span>
+      <input
+        id="grid-column-slider"
+        type="range"
+        min="1"
+        max="${maxColumns}"
+        step="1"
+        value="${columns}"
+        aria-label="Products per row"
+      />
+      <output id="grid-column-value" for="grid-column-slider">${columnLabel}</output>
+    </label>`;
+}
+
 function updateSortMenu() {
   const selectedSorts = getSelectedSorts();
   const label = document.querySelector('#selected-sort-label');
@@ -688,19 +757,72 @@ function setupSortMenu() {
     saveSelectedSorts(nextSorts);
     updateSortMenu();
     renderProducts();
+    menu.open = false;
   });
 
   updateSortMenu();
 }
 
+let gridResizeHandler;
+
+function setupGridControl() {
+  const slider = document.querySelector('#grid-column-slider');
+  const output = document.querySelector('#grid-column-value');
+  const grid = document.querySelector('#product-grid');
+  if (!slider || !output || !grid) return;
+
+  let preferredColumns = getPreferredProductGridColumns();
+
+  const updateGrid = () => {
+    const maxColumns = getMaxProductGridColumns();
+    const columns = Math.min(preferredColumns, maxColumns);
+
+    slider.max = String(maxColumns);
+    slider.value = String(columns);
+    slider.setAttribute('aria-valuetext', `${columns} per row`);
+    grid.style.setProperty('--product-columns', columns);
+    output.textContent = `${columns} ${columns === 1 ? 'column' : 'columns'}`;
+  };
+
+  slider.addEventListener('input', () => {
+    preferredColumns = Number(slider.value);
+
+    try {
+      localStorage.setItem('ebuy-grid-columns', String(preferredColumns));
+    } catch {
+      // The layout still works for this visit if storage is unavailable.
+    }
+
+    updateGrid();
+  });
+
+  if (gridResizeHandler)
+    window.removeEventListener('resize', gridResizeHandler);
+  gridResizeHandler = updateGrid;
+  window.addEventListener('resize', gridResizeHandler);
+  updateGrid();
+}
+
+// Keep the dropdown easy to dismiss without creating new document listeners
+// whenever the products view is rendered again.
+document.addEventListener('click', (event) => {
+  const openMenu = document.querySelector('.sort-menu[open]');
+  if (openMenu && !openMenu.contains(event.target)) openMenu.open = false;
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+
+  const openMenu = document.querySelector('.sort-menu[open]');
+  if (!openMenu) return;
+
+  openMenu.open = false;
+  openMenu.querySelector('summary')?.focus();
+});
+
 function formatUploadDate(dateOfUpload) {
   const date = new Date(`${dateOfUpload}T00:00:00`);
-
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  return uploadDateFormatter.format(date);
 }
 
 function renderCategories() {
@@ -709,9 +831,7 @@ function renderCategories() {
 
   grid.innerHTML = categories
     .map((category) => {
-      const count = products.filter(
-        (product) => product.category === category.id,
-      ).length;
+      const count = productCountByCategory.get(category.id) ?? 0;
       return `
       <a class="category-card" href="#products?category=${category.id}" style="--category-color: ${category.color}">
         <div class="category-image" aria-hidden="true">${category.icon}</div>
@@ -816,7 +936,11 @@ function toggleFavorite(productId) {
     favorites.push(productId);
   }
 
-  localStorage.setItem('ebuy-favorites', JSON.stringify(favorites));
+  try {
+    localStorage.setItem('ebuy-favorites', JSON.stringify(favorites));
+  } catch {
+    // Favorites still work for this visit if browser storage is unavailable.
+  }
   renderFavorites();
   updateProductFavoriteButtons();
 }
@@ -831,7 +955,8 @@ function updateProductFavoriteButtons() {
     button.classList.toggle('is-favorite', isFavorite);
     button.setAttribute('aria-pressed', String(isFavorite));
 
-    const product = products.find((item) => item.id === productId);
+    const product = productById.get(productId);
+    if (!product) return;
     const action = isFavorite ? 'Remove' : 'Add';
     button.setAttribute(
       'aria-label',
@@ -841,9 +966,9 @@ function updateProductFavoriteButtons() {
 }
 
 function renderFavorites() {
-  const favoriteProducts = products.filter((product) =>
-    favorites.includes(product.id),
-  );
+  const favoriteProducts = favorites
+    .map((productId) => productById.get(productId))
+    .filter(Boolean);
   const count = document.querySelector('#favorites-count');
   const list = document.querySelector('#favorites-list');
 
@@ -879,7 +1004,7 @@ function setupFavorites() {
   const popover = document.querySelector('#favorites-popover');
   const list = document.querySelector('#favorites-list');
 
-  // categories.html does not have the favorites menu, so stop there safely.
+  // Stop safely if the shared header markup is unavailable.
   if (!button || !popover || !list) return;
 
   button.addEventListener('click', () => {
@@ -915,14 +1040,20 @@ let cart = readCart();
 
 function addToCart(productId) {
   cart[productId] = (cart[productId] ?? 0) + 1;
-  localStorage.setItem('ebuy-cart', JSON.stringify(cart));
+
+  try {
+    localStorage.setItem('ebuy-cart', JSON.stringify(cart));
+  } catch {
+    // The cart still works for this visit if browser storage is unavailable.
+  }
+
   renderCart();
 }
 
 function cartEntries() {
   return Object.entries(cart)
     .map(([id, quantity]) => ({
-      product: products.find((product) => product.id === Number(id)),
+      product: productById.get(Number(id)),
       quantity,
     }))
     .filter((entry) => entry.product && entry.quantity > 0);
@@ -1032,13 +1163,17 @@ function renderCurrentView() {
             <i data-lucide="arrow-left" aria-hidden="true"></i>
           </a>
           <h1>Products — <span id="selected-category">All products</span></h1>
-          ${createSortMenuHtml()}
+          <div class="product-view-controls">
+            ${createSortMenuHtml()}
+            ${createGridControlHtml()}
+          </div>
         </div>
         <div class="product-grid" id="product-grid"></div>
       </section>`;
 
     renderProducts();
     setupSortMenu();
+    setupGridControl();
   } else {
     pageContent.innerHTML = `
       <section class="hero home-view" id="home">
@@ -1063,38 +1198,9 @@ function renderCurrentView() {
   }
 }
 
-function animateToCurrentView() {
-  const pageContent = document.querySelector('#page-content');
-  const prefersReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches;
-
-  if (!pageContent || prefersReducedMotion) {
-    renderCurrentView();
-    return;
-  }
-
-  // First animate the current middle section out.
-  pageContent.classList.remove('view-is-entering');
-  pageContent.classList.add('view-is-leaving');
-
-  window.setTimeout(() => {
-    // Replace the middle section, then animate the new section in.
-    pageContent.classList.remove('view-is-leaving');
-    renderCurrentView();
-    pageContent.classList.add('view-is-entering');
-
-    window.setTimeout(() => {
-      pageContent.classList.remove('view-is-entering');
-    }, 320);
-  }, 180);
-}
-
 renderCurrentView();
-document.querySelector('#page-content')?.classList.add('view-is-entering');
+setupPageTransitions(renderCurrentView);
 setupFavorites();
 renderFavorites();
 setupCart();
 renderCart();
-
-window.addEventListener('hashchange', animateToCurrentView);
