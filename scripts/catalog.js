@@ -1,6 +1,8 @@
 import { setupPageTransitions } from './navigation/pageTransitions.js';
-
 import { categories, products } from './data/catalogData.js';
+import { readJsonFromStorage, writeJsonToStorage } from './utils/storage.js';
+
+// ---------- Shared catalog helpers ----------
 
 const money = (value) => `$${value.toFixed(2)}`;
 
@@ -19,6 +21,8 @@ const uploadDateFormatter = new Intl.DateTimeFormat('en-GB', {
   month: 'short',
   year: 'numeric',
 });
+
+// ---------- Product sorting ----------
 
 // These values are saved in localStorage and used to sort product cards.
 const sortOptions = [
@@ -60,11 +64,7 @@ function getSelectedSorts() {
 }
 
 function saveSelectedSorts(selectedSorts) {
-  try {
-    localStorage.setItem('ebuy-sort', JSON.stringify(selectedSorts));
-  } catch {
-    // Ignore storage errors from restricted browser modes.
-  }
+  writeJsonToStorage('ebuy-sort', selectedSorts);
 }
 
 function getSelectedSortLabel() {
@@ -139,6 +139,8 @@ function createSortMenuHtml() {
       </div>
     </details>`;
 }
+
+// ---------- Product grid size ----------
 
 function getMaxProductGridColumns() {
   if (window.innerWidth <= 760) return 2;
@@ -293,6 +295,8 @@ document.addEventListener('keydown', (event) => {
   openMenu.querySelector('summary')?.focus();
 });
 
+// ---------- Category and product cards ----------
+
 function formatUploadDate(dateOfUpload) {
   const date = new Date(`${dateOfUpload}T00:00:00`);
   return uploadDateFormatter.format(date);
@@ -393,14 +397,12 @@ function renderProducts() {
   updateProductFavoriteButtons();
 }
 
+// ---------- Favorites ----------
+
 // Favorites are stored as an array of product IDs, for example: [1, 4, 8].
 function readFavorites() {
-  try {
-    const savedFavorites = JSON.parse(localStorage.getItem('ebuy-favorites'));
-    return Array.isArray(savedFavorites) ? savedFavorites : [];
-  } catch {
-    return [];
-  }
+  const savedFavorites = readJsonFromStorage('ebuy-favorites', []);
+  return Array.isArray(savedFavorites) ? savedFavorites : [];
 }
 
 let favorites = readFavorites();
@@ -414,11 +416,7 @@ function toggleFavorite(productId) {
     favorites.push(productId);
   }
 
-  try {
-    localStorage.setItem('ebuy-favorites', JSON.stringify(favorites));
-  } catch {
-    // Favorites still work for this visit if browser storage is unavailable.
-  }
+  writeJsonToStorage('ebuy-favorites', favorites);
   renderFavorites();
   updateProductFavoriteButtons();
 }
@@ -506,12 +504,14 @@ function setupFavorites() {
   });
 }
 
+// ---------- Shopping cart ----------
+
 function readCart() {
-  try {
-    return JSON.parse(localStorage.getItem('ebuy-cart')) ?? {};
-  } catch {
-    return {};
-  }
+  const savedCart = readJsonFromStorage('ebuy-cart', {});
+  const isValidCart =
+    savedCart && !Array.isArray(savedCart) && typeof savedCart === 'object';
+
+  return isValidCart ? savedCart : {};
 }
 
 let cart = readCart();
@@ -519,16 +519,12 @@ let cart = readCart();
 function addToCart(productId) {
   cart[productId] = (cart[productId] ?? 0) + 1;
 
-  try {
-    localStorage.setItem('ebuy-cart', JSON.stringify(cart));
-  } catch {
-    // The cart still works for this visit if browser storage is unavailable.
-  }
+  writeJsonToStorage('ebuy-cart', cart);
 
   renderCart();
 }
 
-function cartEntries() {
+function getCartEntries() {
   return Object.entries(cart)
     .map(([id, quantity]) => ({
       product: productById.get(Number(id)),
@@ -538,7 +534,7 @@ function cartEntries() {
 }
 
 function renderCart() {
-  const entries = cartEntries();
+  const entries = getCartEntries();
   const count = entries.reduce((sum, entry) => sum + entry.quantity, 0);
   const subtotal = entries.reduce(
     (sum, entry) => sum + entry.product.price * entry.quantity,
@@ -616,6 +612,8 @@ function setupCart() {
     ?.addEventListener('click', () => dialog.close());
 }
 
+// ---------- Page routing ----------
+
 function renderCurrentView() {
   const pageContent = document.querySelector('#page-content');
   if (!pageContent) return;
@@ -675,6 +673,8 @@ function renderCurrentView() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 }
+
+// ---------- Start the application ----------
 
 renderCurrentView();
 setupPageTransitions(renderCurrentView);

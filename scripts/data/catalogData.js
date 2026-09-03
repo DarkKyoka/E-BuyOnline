@@ -1,3 +1,4 @@
+// Each category has a URL-safe ID, a display name, an emoji, and an accent color.
 export const categories = [
   { id: 'electronics', name: 'Electronics', icon: '🎧', color: '#dbeafe' },
   { id: 'fashion', name: 'Fashion', icon: '👟', color: '#fce7f3' },
@@ -9,6 +10,8 @@ export const categories = [
   { id: 'pets', name: 'Pet Supplies', icon: '🐾', color: '#e0e7ff' },
 ];
 
+// Every product ID must be unique. The category value must match a category ID.
+// Book products can also include the optional author property.
 export const products = [
   {
     id: 1,

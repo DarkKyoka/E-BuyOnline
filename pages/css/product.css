@@ -1,3 +1,5 @@
+/* ---------- Product page layout ---------- */
+
 a {
   color: inherit;
 }
@@ -16,6 +18,8 @@ a {
   margin: 0 auto;
   padding: 0 0 4rem;
 }
+
+/* ---------- Header popover link ---------- */
 
 .category-link {
   font-weight: 700;
@@ -37,6 +41,8 @@ a {
   text-align: center;
   text-decoration: none;
 }
+
+/* ---------- Product details card ---------- */
 
 .product-detail {
   min-height: 36rem;
@@ -127,6 +133,8 @@ a {
   font-weight: 800;
 }
 
+/* ---------- Product action buttons ---------- */
+
 .detail-actions {
   display: flex;
   flex-wrap: wrap;
@@ -179,6 +187,8 @@ a {
   transform: scale(1.12);
 }
 
+/* ---------- Product not found ---------- */
+
 .product-not-found {
   max-width: 38rem;
   margin: 5rem auto;
@@ -203,6 +213,8 @@ a {
   font-weight: 800;
 }
 
+/* ---------- Animation ---------- */
+
 @keyframes detail-enter {
   from {
     opacity: 0;
@@ -213,6 +225,8 @@ a {
     transform: translateY(0);
   }
 }
+
+/* ---------- Responsive layout ---------- */
 
 @media (max-width: 760px) {
   .product-page-content {

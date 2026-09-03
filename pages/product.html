@@ -8,8 +8,12 @@
       content="View product information at E-Buy Online."
     />
     <title>Product | E-Buy Online!</title>
+
+    <!-- Shared styles come first; product.css only adds this page's layout. -->
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="stylesheet" href="./css/product.css" />
+
+    <!-- Lucide replaces data-lucide elements with SVG icons. -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <script
       defer
@@ -23,6 +27,7 @@
   </head>
   <body>
     <main class="site product-page" id="site">
+      <!-- Shared navigation bar -->
       <header class="navbar shared-navbar">
         <div class="brand-logo" aria-hidden="true"></div>
         <div class="brand-group">
@@ -37,6 +42,7 @@
         </div>
 
         <div class="nav-actions">
+          <!-- Favorites menu -->
           <div class="favorites-wrap">
             <button
               class="icon-button favorites-button"
@@ -60,6 +66,7 @@
             </aside>
           </div>
 
+          <!-- Shopping-cart menu -->
           <div class="cart-wrap">
             <button
               class="icon-button cart-button"
@@ -86,6 +93,7 @@
             </aside>
           </div>
 
+          <!-- Light and dark theme toggle -->
           <button
             class="icon-button"
             id="theme-button"
@@ -97,6 +105,7 @@
         </div>
       </header>
 
+      <!-- JavaScript fills these elements with the selected product's data. -->
       <div class="product-page-content">
         <article class="product-detail" id="product-detail">
           <div class="detail-visual" aria-hidden="true">
@@ -113,6 +122,7 @@
             <p class="product-author" id="product-author" hidden></p>
             <p class="product-description" id="product-description"></p>
 
+            <!-- Price and upload date -->
             <dl class="product-facts">
               <div>
                 <dt>Price</dt>
@@ -124,6 +134,7 @@
               </div>
             </dl>
 
+            <!-- Product actions -->
             <div class="detail-actions">
               <button
                 class="detail-cart-button"
@@ -138,7 +149,7 @@
                 type="button"
                 aria-pressed="false"
               >
-                <span aria-hidden="true" hidden></span>
+                <!-- The filled state is controlled by the is-favorite class. -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -161,6 +172,7 @@
           </div>
         </article>
 
+        <!-- Shown when the URL contains an unknown product ID. -->
         <section class="product-not-found" id="product-not-found" hidden>
           <p class="not-found-code">404</p>
           <h1>Product not found</h1>
